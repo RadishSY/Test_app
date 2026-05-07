@@ -6,7 +6,6 @@ module.exports = function (router, db) {
   // 获取个人资料
   router.get("/", async (req, res) => {
     try {
-      if (!req.session.userId) return res.status(401).json({ ok: false, msg: "未登录" });
       const [rows] = await db.query(
         "SELECT id, username, nickname, avatar, signature, bio, avatar_color FROM users WHERE id = ?",
         [req.session.userId]
@@ -23,7 +22,6 @@ module.exports = function (router, db) {
   // 更新个人资料
   router.put("/", async (req, res) => {
     try {
-      if (!req.session.userId) return res.status(401).json({ ok: false, msg: "未登录" });
       const { nickname, signature, bio } = req.body;
       const updates = [];
       const params = [];
@@ -63,6 +61,23 @@ module.exports = function (router, db) {
     }
   });
 
+  // 获取其他用户的公开资料
+  router.get("/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const [rows] = await db.query(
+        "SELECT id, username, nickname, avatar, signature, bio, avatar_color FROM users WHERE id = ?",
+        [id]
+      );
+      if (rows.length === 0) return res.status(404).json({ ok: false, msg: "用户不存在" });
+      const u = rows[0];
+      res.json({ id: u.id, username: u.username, nickname: u.nickname, avatar: u.avatar || "", signature: u.signature || "", bio: u.bio || "", color: u.avatar_color });
+    } catch (err) {
+      console.error("获取用户资料失败:", err);
+      res.status(500).json({ ok: false, msg: "服务器错误" });
+    }
+  });
+
   // 上传头像
   const uploadsDir = path.join(__dirname, "../../public/uploads");
   if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
@@ -85,7 +100,6 @@ module.exports = function (router, db) {
   });
 
   router.post("/avatar", (req, res) => {
-    if (!req.session.userId) return res.status(401).json({ ok: false, msg: "未登录" });
     avatarUpload.single("file")(req, res, async (err) => {
       if (err) {
         if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {

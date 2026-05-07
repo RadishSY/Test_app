@@ -84,6 +84,11 @@ const profileAvatarImgEdit = document.getElementById("profile-avatar-img-edit");
 const profileNicknameEditLabel = document.getElementById("profile-nickname-edit-label");
 const profileUsernameEditLabel = document.getElementById("profile-username-edit-label");
 
+// User profile popup (click avatar)
+const userProfileModal = document.getElementById("user-profile-modal");
+const userProfileClose = document.getElementById("user-profile-close");
+let currentProfileUserId = null;
+
 // ========== 页面加载时检查登录态 ==========
 (async function init() {
   const res = await fetch("/api/auth/me");
@@ -421,6 +426,87 @@ async function loadFriendRequests() {
   });
 }
 
+// ========== 用户资料弹窗（点击公共聊天头像）==========
+userProfileClose.addEventListener("click", () => userProfileModal.classList.add("hidden"));
+userProfileModal.addEventListener("click", e => { if (e.target === userProfileModal) userProfileModal.classList.add("hidden"); });
+
+// 点击公共聊天中的用户头像
+messagesEl.addEventListener("click", e => {
+  const el = e.target.closest(".user-avatar-clickable");
+  if (el) {
+    const userId = parseInt(el.dataset.userId);
+    if (!isNaN(userId) && userId !== currentUser?.id) showUserProfile(userId);
+  }
+});
+
+async function showUserProfile(userId) {
+  currentProfileUserId = userId;
+  try {
+    const res = await fetch(`/api/user/${userId}`);
+    const data = await res.json();
+    if (!data.id) return;
+
+    document.getElementById("user-profile-nickname").textContent = data.nickname;
+    document.getElementById("user-profile-username").textContent = "@" + data.username;
+    document.getElementById("user-profile-signature").textContent = data.signature || "未设置";
+    document.getElementById("user-profile-bio").textContent = data.bio || "未设置";
+
+    const letter = document.getElementById("user-profile-avatar-letter");
+    const img = document.getElementById("user-profile-avatar-img");
+    if (data.avatar) {
+      letter.classList.add("hidden");
+      img.classList.remove("hidden");
+      img.src = data.avatar;
+    } else {
+      letter.classList.remove("hidden");
+      img.classList.add("hidden");
+      letter.textContent = (data.nickname || "?")[0];
+      letter.style.background = data.color || "#e94560";
+    }
+
+    const btn = document.getElementById("user-profile-add-btn");
+    btn.disabled = false;
+    btn.textContent = "＋ 添加好友";
+
+    userProfileModal.classList.remove("hidden");
+  } catch (err) {
+    console.error("获取用户资料失败:", err);
+  }
+}
+
+// 添加好友按钮
+document.getElementById("user-profile-add-btn").addEventListener("click", async () => {
+  if (!currentProfileUserId) return;
+  const btn = document.getElementById("user-profile-add-btn");
+  btn.disabled = true;
+  btn.textContent = "发送中...";
+  try {
+    const res = await fetch("/api/friends/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ friendId: currentProfileUserId }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      btn.textContent = data.autoAccepted ? "已添加" : "已发送请求";
+      if (data.autoAccepted) loadFriendList();
+      socket.emit("friend request sent", { toUserId: currentProfileUserId });
+    } else {
+      btn.textContent = data.msg;
+      setTimeout(() => {
+        btn.textContent = "＋ 添加好友";
+        btn.disabled = false;
+      }, 2000);
+    }
+  } catch (err) {
+    btn.textContent = "请求失败";
+    setTimeout(() => {
+      btn.textContent = "＋ 添加好友";
+      btn.disabled = false;
+    }, 2000);
+  }
+});
+
 // ========== 未读消息 ==========
 function updateUnreadBadges() {
   document.querySelectorAll(".unread-badge").forEach(badge => {
@@ -709,8 +795,11 @@ function createMessageEl(data, isOwn) {
     ? `<div class="msg-text"><img src="${esc(data.text)}" class="chat-image" alt="图片" loading="lazy" onclick="window.open(this.src)"></div>`
     : `<div class="msg-text">${esc(data.text)}</div>`;
   const avatarHtml = getAvatarHtml(data, 28);
+  const otherAvatar = !isOwn && data.id
+    ? `<div class="user-avatar-clickable" data-user-id="${data.id}">${avatarHtml}</div>`
+    : avatarHtml;
   div.innerHTML = `
-    ${!isOwn ? avatarHtml : ""}
+    ${!isOwn ? otherAvatar : ""}
     <div class="msg-body">
       <div class="msg-header">
         <span class="msg-username" style="color:${data.color}">${esc(data.nickname || data.username)}</span>

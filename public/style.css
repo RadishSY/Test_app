@@ -654,6 +654,17 @@ body {
   flex-shrink: 0;
 }
 
+.user-avatar-clickable {
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+  border-radius: 50%;
+  line-height: 0;
+}
+
+.user-avatar-clickable:hover {
+  transform: scale(1.12);
+}
+
 .message .msg-header {
   display: flex;
   align-items: baseline;

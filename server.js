@@ -10,6 +10,7 @@ const rateLimit = require("express-rate-limit");
 const multer = require("multer");
 
 const db = require("./src/db");
+const { requireAuth } = require("./src/middleware/auth");
 
 // ========== Multer (图片上传) ==========
 const uploadsDir = path.join(__dirname, "public/uploads");
@@ -79,16 +80,16 @@ const authRouter = express.Router();
 app.use("/api/auth", require("./src/routes/auth")(authRouter, db));
 
 const friendsRouter = express.Router();
-app.use("/api/friends", require("./src/routes/friends")(friendsRouter, db));
+app.use("/api/friends", requireAuth, require("./src/routes/friends")(friendsRouter, db));
 
 // ========== 个人资料 ==========
 const profileRouter = express.Router();
-app.use("/api/user", require("./src/routes/profile")(profileRouter, db));
+app.use("/api/user", requireAuth, require("./src/routes/profile")(profileRouter, db));
 
 // ========== 图片上传 ==========
 const uploadRouter = express.Router();
+uploadRouter.use(requireAuth);
 uploadRouter.post("/", (req, res) => {
-  if (!req.session.userId) return res.status(401).json({ ok: false, msg: "未登录" });
   upload.single("file")(req, res, (err) => {
     if (err) {
       if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
@@ -100,10 +101,16 @@ uploadRouter.post("/", (req, res) => {
     res.json({ ok: true, url: "/uploads/" + req.file.filename });
   });
 });
-app.use("/api/upload", sessionMiddleware, uploadRouter);
+app.use("/api/upload", uploadRouter);
 
 // ========== Socket.IO ==========
-require("./src/socket/chat")(io, db);
+require("./src/socket")(io, db);
+
+// ========== 全局错误处理器 ==========
+app.use((err, req, res, next) => {
+  console.error("服务器错误:", err);
+  res.status(500).json({ ok: false, msg: "服务器错误" });
+});
 
 // ========== 启动 ==========
 const PORT = process.env.PORT || 3000;

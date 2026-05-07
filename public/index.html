@@ -80,6 +80,34 @@
           </div>
         </div>
 
+        <!-- 用户资料弹窗（点击聊天头像） -->
+        <div id="user-profile-modal" class="modal hidden">
+          <div class="modal-content profile-modal">
+            <span class="modal-close" id="user-profile-close">&times;</span>
+            <h3>用户资料</h3>
+            <div class="user-profile-view">
+              <div class="profile-avatar-wrap" style="cursor:default">
+                <div class="profile-avatar" id="user-profile-avatar-display">
+                  <span class="profile-avatar-letter" id="user-profile-avatar-letter"></span>
+                  <img id="user-profile-avatar-img" class="hidden" alt="头像">
+                </div>
+              </div>
+              <div class="profile-nickname" id="user-profile-nickname"></div>
+              <div class="profile-username" id="user-profile-username"></div>
+              <div class="profile-divider"></div>
+              <div class="profile-field">
+                <span class="profile-field-label">个性签名</span>
+                <p class="profile-field-value" id="user-profile-signature">未设置</p>
+              </div>
+              <div class="profile-field">
+                <span class="profile-field-label">个人简介</span>
+                <p class="profile-field-value" id="user-profile-bio">未设置</p>
+              </div>
+              <button id="user-profile-add-btn" class="profile-edit-btn">＋ 添加好友</button>
+            </div>
+          </div>
+        </div>
+
         <!-- 个人资料弹窗 -->
         <div id="profile-modal" class="modal hidden">
           <div class="modal-content profile-modal">
