@@ -112,3 +112,4 @@ sidebarToggle?.addEventListener("click", () => {
   toggleSidebar(!isOpen);
 });
 sidebarOverlay?.addEventListener("click", () => toggleSidebar(false));
+document.getElementById("sidebar-close")?.addEventListener("click", () => toggleSidebar(false));

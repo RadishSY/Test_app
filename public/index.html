@@ -37,15 +37,18 @@
       <!-- 侧边栏 -->
       <div id="sidebar-overlay" class="sidebar-overlay"></div>
       <aside class="sidebar">
-        <div class="sidebar-user">
-          <div class="sidebar-user-info" id="profile-btn">
-            <div class="sidebar-avatar" id="sidebar-avatar">
-              <span class="sidebar-avatar-letter" id="sidebar-avatar-letter"></span>
-              <img id="sidebar-avatar-img" class="hidden" alt="">
+        <div class="sidebar-header">
+          <button id="sidebar-close" class="sidebar-close-btn" aria-label="关闭">&times;</button>
+          <div class="sidebar-user">
+            <div class="sidebar-user-info" id="profile-btn">
+              <div class="sidebar-avatar" id="sidebar-avatar">
+                <span class="sidebar-avatar-letter" id="sidebar-avatar-letter"></span>
+                <img id="sidebar-avatar-img" class="hidden" alt="">
+              </div>
+              <span id="sidebar-nickname"></span>
             </div>
-            <span id="sidebar-nickname"></span>
+            <button id="logout-btn">退出</button>
           </div>
-          <button id="logout-btn">退出</button>
         </div>
 
         <!-- 侧边栏 tabs -->
