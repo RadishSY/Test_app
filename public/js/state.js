@@ -107,5 +107,8 @@ function toggleSidebar(open) {
   sidebarOverlay?.classList.toggle("open", open);
   document.body.classList.toggle("sidebar-open", open);
 }
-sidebarToggle?.addEventListener("click", () => toggleSidebar(true));
+sidebarToggle?.addEventListener("click", () => {
+  const isOpen = sidebarEl?.classList.contains("open");
+  toggleSidebar(!isOpen);
+});
 sidebarOverlay?.addEventListener("click", () => toggleSidebar(false));
