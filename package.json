@@ -1,0 +1,28 @@
+{
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "网页聊天室",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "pm2": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop chat-app",
+    "pm2:restart": "pm2 restart chat-app",
+    "pm2:logs": "pm2 logs chat-app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "multer": "^1.4.5-lts.1",
+    "express-rate-limit": "^8.5.0",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.22.3",
+    "socket.io": "^4.8.3"
+  }
+}
