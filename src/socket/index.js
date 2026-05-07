@@ -29,7 +29,7 @@ module.exports = function (io, db) {
 
     // 发送历史消息
     const [history] = await db.query(
-      `SELECT m.user_id as id, m.username, m.text, m.color, u.avatar,
+      `SELECT m.user_id as id, m.username, m.text, m.color, u.avatar, u.avatar_color,
               COALESCE(m.type, 'text') as type,
               DATE_FORMAT(m.created_at, '%Y-%m-%d %H:%i:%s') as created_at
        FROM messages m JOIN users u ON m.user_id = u.id

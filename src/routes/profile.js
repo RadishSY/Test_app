@@ -1,7 +1,3 @@
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-
 module.exports = function (router, db) {
   // 获取个人资料
   router.get("/", async (req, res) => {
@@ -19,10 +15,10 @@ module.exports = function (router, db) {
     }
   });
 
-  // 更新个人资料
+  // 更新个人资料（支持 nickname, signature, bio, avatar, avatar_color）
   router.put("/", async (req, res) => {
     try {
-      const { nickname, signature, bio } = req.body;
+      const { nickname, signature, bio, avatar, avatar_color } = req.body;
       const updates = [];
       const params = [];
 
@@ -41,6 +37,14 @@ module.exports = function (router, db) {
         if (bio.length > 500) return res.json({ ok: false, msg: "个人简介不能超过 500 个字符" });
         updates.push("bio = ?");
         params.push(bio);
+      }
+      if (avatar !== undefined) {
+        updates.push("avatar = ?");
+        params.push(avatar);
+      }
+      if (avatar_color !== undefined) {
+        updates.push("avatar_color = ?");
+        params.push(avatar_color);
       }
 
       if (updates.length === 0) return res.json({ ok: false, msg: "没有需要更新的内容" });
@@ -76,42 +80,6 @@ module.exports = function (router, db) {
       console.error("获取用户资料失败:", err);
       res.status(500).json({ ok: false, msg: "服务器错误" });
     }
-  });
-
-  // 上传头像
-  const uploadsDir = path.join(__dirname, "../../public/uploads");
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-  const avatarUpload = multer({
-    storage: multer.diskStorage({
-      destination: (req, file, cb) => cb(null, uploadsDir),
-      filename: (req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, "avatar-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ext);
-      },
-    }),
-    limits: { fileSize: 2 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-      const allowed = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-      const ext = path.extname(file.originalname).toLowerCase();
-      if (allowed.includes(ext)) cb(null, true);
-      else cb(new Error("不支持的文件格式，仅支持 jpg/png/gif/webp"), false);
-    },
-  });
-
-  router.post("/avatar", (req, res) => {
-    avatarUpload.single("file")(req, res, async (err) => {
-      if (err) {
-        if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-          return res.json({ ok: false, msg: "头像文件大小不能超过 2MB" });
-        }
-        return res.json({ ok: false, msg: err.message || "上传失败" });
-      }
-      if (!req.file) return res.json({ ok: false, msg: "请选择文件" });
-      const url = "/uploads/" + req.file.filename;
-      await db.query("UPDATE users SET avatar = ? WHERE id = ?", [url, req.session.userId]);
-      res.json({ ok: true, url });
-    });
   });
 
   return router;

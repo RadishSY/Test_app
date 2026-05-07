@@ -1,5 +1,20 @@
 const bcrypt = require("bcryptjs");
 
+const AVATAR_PRESETS = [
+  { emoji: "😀", color: "#e94560" },
+  { emoji: "😎", color: "#ff6b35" },
+  { emoji: "🤖", color: "#00b4d8" },
+  { emoji: "🦊", color: "#ff9f1c" },
+  { emoji: "🐱", color: "#f4845f" },
+  { emoji: "🐼", color: "#2d6a4f" },
+  { emoji: "🦄", color: "#9b5de5" },
+  { emoji: "🌟", color: "#ffd166" },
+  { emoji: "🔥", color: "#ef476f" },
+  { emoji: "🌈", color: "#06d6a0" },
+  { emoji: "🚀", color: "#118ab2" },
+  { emoji: "🎮", color: "#073b4c" },
+];
+
 module.exports = function (router, db) {
   // 注册
   router.post("/register", async (req, res) => {
@@ -13,16 +28,16 @@ module.exports = function (router, db) {
       if (rows.length > 0) return res.json({ ok: false, msg: "用户名已被注册" });
 
       const hash = await bcrypt.hash(password, 10);
-      const color = `hsl(${Math.floor(Math.random() * 360)}, 60%, 50%)`;
+      const preset = AVATAR_PRESETS[Math.floor(Math.random() * AVATAR_PRESETS.length)];
       const [result] = await db.query(
-        "INSERT INTO users (username, password, nickname, avatar_color) VALUES (?, ?, ?, ?)",
-        [username, hash, nickname || username, color]
+        "INSERT INTO users (username, password, nickname, avatar, avatar_color) VALUES (?, ?, ?, ?, ?)",
+        [username, hash, nickname || username, preset.emoji, preset.color]
       );
 
       req.session.userId = result.insertId;
       req.session.username = username;
 
-      res.json({ ok: true, msg: "注册成功", user: { id: result.insertId, username, nickname: nickname || username, avatar: "", signature: "", bio: "", color } });
+      res.json({ ok: true, msg: "注册成功", user: { id: result.insertId, username, nickname: nickname || username, avatar: preset.emoji, signature: "", bio: "", color: preset.color } });
     } catch (err) {
       console.error("注册失败:", err);
       res.json({ ok: false, msg: "服务器错误" });

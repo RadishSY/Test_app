@@ -35,6 +35,7 @@
   <div id="chat-screen" class="screen hidden">
     <div class="chat-container">
       <!-- 侧边栏 -->
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
       <aside class="sidebar">
         <div class="sidebar-user">
           <div class="sidebar-user-info" id="profile-btn">
@@ -116,11 +117,10 @@
 
             <!-- 查看模式 -->
             <div id="profile-view">
-              <div class="profile-avatar-wrap" id="profile-avatar-upload">
+              <div class="profile-avatar-wrap" style="cursor:default">
                 <div class="profile-avatar" id="profile-avatar-display">
                   <span class="profile-avatar-letter" id="profile-avatar-letter"></span>
                   <img id="profile-avatar-img" class="hidden" alt="头像">
-                  <div class="profile-avatar-overlay">更换头像</div>
                 </div>
               </div>
               <div class="profile-nickname" id="profile-nickname-view"></div>
@@ -139,16 +139,19 @@
 
             <!-- 编辑模式 -->
             <div id="profile-edit" class="hidden">
-              <div class="profile-avatar-wrap" id="profile-avatar-edit-trigger">
+              <div class="profile-avatar-wrap" style="cursor:default">
                 <div class="profile-avatar" id="profile-avatar-display-edit">
                   <span class="profile-avatar-letter" id="profile-avatar-letter-edit"></span>
                   <img id="profile-avatar-img-edit" class="hidden" alt="头像">
-                  <div class="profile-avatar-overlay">更换头像</div>
                 </div>
               </div>
               <div class="profile-nickname" id="profile-nickname-edit-label"></div>
               <div class="profile-username" id="profile-username-edit-label"></div>
               <div class="profile-divider"></div>
+              <div class="profile-field">
+                <span class="profile-field-label">头像</span>
+                <div class="avatar-preset-grid" id="avatar-preset-grid"></div>
+              </div>
               <div class="profile-field">
                 <span class="profile-field-label">显示名称</span>
                 <input type="text" class="profile-input" id="profile-nickname-input" maxlength="20">
@@ -166,10 +169,6 @@
                 <button class="profile-cancel-btn" id="profile-cancel-btn">取消</button>
               </div>
             </div>
-
-            <form id="profile-avatar-form" hidden>
-              <input type="file" id="profile-avatar-file" accept="image/*">
-            </form>
           </div>
         </div>
       </aside>
@@ -179,6 +178,7 @@
         <!-- 公共聊天 -->
         <div id="public-chat">
           <header class="chat-header">
+            <button id="sidebar-toggle" class="sidebar-toggle" aria-label="菜单">☰</button>
             <h2>公共聊天室</h2>
           </header>
           <div id="messages" class="messages"></div>
@@ -220,6 +220,12 @@
   <div id="emoji-picker" class="emoji-picker hidden"></div>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/app.js"></script>
+  <script src="/js/state.js"></script>
+  <script src="/js/utils.js"></script>
+  <script src="/js/profile.js"></script>
+  <script src="/js/friends.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/socket.js"></script>
 </body>
 </html>
