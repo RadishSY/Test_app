@@ -1,5 +1,7 @@
+const { createNotification } = require("./notifications");
+
 module.exports = function (socket, io, db, ctx) {
-  socket.on("friend request sent", ({ toUserId }) => {
+  socket.on("friend request sent", async ({ toUserId }) => {
     const targetSockets = ctx.state.userSockets.get(toUserId);
     if (targetSockets) {
       for (const sid of targetSockets) {
@@ -8,9 +10,19 @@ module.exports = function (socket, io, db, ctx) {
         });
       }
     }
+    // 创建通知
+    await createNotification({
+      db, io,
+      userId: toUserId,
+      type: "friend_request",
+      title: "好友请求",
+      content: `${ctx.user.nickname} 请求添加你为好友`,
+      relatedUserId: ctx.userId,
+      link: "friends",
+    });
   });
 
-  socket.on("friend request responded", ({ toUserId, accepted }) => {
+  socket.on("friend request responded", async ({ toUserId, accepted }) => {
     const targetSockets = ctx.state.userSockets.get(toUserId);
     if (targetSockets) {
       for (const sid of targetSockets) {
@@ -19,6 +31,18 @@ module.exports = function (socket, io, db, ctx) {
           accepted,
         });
       }
+    }
+    // 创建通知
+    if (accepted) {
+      await createNotification({
+        db, io,
+        userId: toUserId,
+        type: "friend_accept",
+        title: "好友请求被接受",
+        content: `${ctx.user.nickname} 接受了你的好友请求`,
+        relatedUserId: ctx.userId,
+        link: "friends",
+      });
     }
   });
 

@@ -5,8 +5,8 @@ module.exports = function (socket, io, db, ctx) {
     const msgType = msg.startsWith("/uploads/") ? "image" : "text";
 
     await db.query(
-      "INSERT INTO messages (user_id, username, text, color) VALUES (?, ?, ?, ?)",
-      [ctx.userId, ctx.username, msg, ctx.userInfo.color]
+      "INSERT INTO messages (user_id, username, text, color, type) VALUES (?, ?, ?, ?, ?)",
+      [ctx.userId, ctx.username, msg, ctx.userInfo.color, msgType]
     );
 
     io.emit("chat message", {

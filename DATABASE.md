@@ -111,6 +111,38 @@ CREATE TABLE friends (
 
 ---
 
+## `notifications` — 通知表
+
+```sql
+CREATE TABLE notifications (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  type VARCHAR(20) NOT NULL DEFAULT 'system',
+  title VARCHAR(200) NOT NULL,
+  content TEXT,
+  related_user_id INT,
+  link VARCHAR(500),
+  is_read TINYINT(1) DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (related_user_id) REFERENCES users(id)
+);
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| id | INT | 主键，自增 |
+| user_id | INT | 接收通知的用户 ID |
+| type | VARCHAR(20) | 通知类型：'friend_request' / 'friend_accept' / 'system' / 'mention' |
+| title | VARCHAR(200) | 通知标题 |
+| content | TEXT | 通知内容 |
+| related_user_id | INT | 关联用户 ID（如请求方） |
+| link | VARCHAR(500) | 点击通知跳转链接 |
+| is_read | TINYINT(1) | 是否已读：0 未读 / 1 已读 |
+| created_at | DATETIME | 创建时间 |
+
+---
+
 ## 索引建议
 
 ```sql

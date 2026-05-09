@@ -103,6 +103,10 @@ uploadRouter.post("/", (req, res) => {
 });
 app.use("/api/upload", uploadRouter);
 
+// ========== 通知 ==========
+const notifRouter = express.Router();
+app.use("/api/notifications", requireAuth, require("./src/routes/notifications")(notifRouter, db));
+
 // ========== Socket.IO ==========
 require("./src/socket")(io, db);
 

@@ -183,7 +183,19 @@
           <header class="chat-header">
             <button id="sidebar-toggle" class="sidebar-toggle" aria-label="菜单">☰</button>
             <h2>公共聊天室</h2>
+            <div class="notif-area">
+              <button id="notif-bell" class="notif-bell" aria-label="通知">🔔</button>
+              <span id="notif-badge" class="notif-badge hidden">0</span>
+            </div>
           </header>
+          <div id="notif-dropdown" class="notif-dropdown hidden">
+            <div class="notif-dropdown-header">
+              <h3>通知</h3>
+              <button id="notif-mark-read" class="notif-mark-read">全部标记已读</button>
+            </div>
+            <div class="notif-dropdown-body" id="notif-list"></div>
+            <div class="notif-dropdown-empty" id="notif-empty">暂无通知</div>
+          </div>
           <div id="messages" class="messages"></div>
           <div class="typing-indicator" id="typing-indicator"></div>
           <form id="message-form" class="input-area">
@@ -202,6 +214,9 @@
           <header class="chat-header private-header">
             <button id="back-to-public" class="back-btn">&larr; 返回</button>
             <h2>与 <span id="private-friend-name"></span> 私聊</h2>
+            <div class="notif-area">
+              <button id="notif-bell-private" class="notif-bell" aria-label="通知">🔔</button>
+            </div>
           </header>
           <div id="private-messages" class="messages"></div>
           <div class="typing-indicator" id="private-typing"></div>
@@ -229,6 +244,7 @@
   <script src="/js/friends.js"></script>
   <script src="/js/chat.js"></script>
   <script src="/js/auth.js"></script>
+  <script src="/js/notifications.js"></script>
   <script src="/js/socket.js"></script>
 </body>
 </html>

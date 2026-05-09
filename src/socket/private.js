@@ -16,8 +16,8 @@ module.exports = function (socket, io, db, ctx) {
     }
 
     await db.query(
-      "INSERT INTO private_messages (sender_id, receiver_id, text) VALUES (?, ?, ?)",
-      [ctx.userId, friendId, msg]
+      "INSERT INTO private_messages (sender_id, receiver_id, text, type) VALUES (?, ?, ?, ?)",
+      [ctx.userId, friendId, msg, msgType]
     );
 
     const payload = {

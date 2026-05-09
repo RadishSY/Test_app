@@ -1,5 +1,47 @@
 # 更新日志
 
+## 2026-05-09
+
+### 功能：右上角消息通知系统 — 下午
+
+**新增通知功能，包含铃铛图标、下拉面板、实时推送：**
+
+- `public/index.html` — 公共聊天和私聊 header 添加铃铛按钮 + 通知下拉面板
+- `public/style.css` — 通知铃铛、徽标、下拉面板、通知项完整样式
+- `public/js/notifications.js` — 通知加载/渲染/标记已读/实时推送（新建）
+- `public/js/auth.js` — `enterChat()` 加入 `loadUnreadCount()` 调用
+- `src/routes/notifications.js` — `GET /api/notifications`、`GET /api/notifications/unread`、`POST /api/notifications/read`（新建）
+- `src/socket/notifications.js` — 通知创建工具函数 + 实时 socket 推送（新建）
+- `src/socket/notifs.js` — 好友请求/接受事件中调用通知创建
+- `server.js` — 注册 `/api/notifications` 路由
+- `migration.js` — 新增 `notifications` 表迁移
+
+---
+
+### 设计：前端界面全面重设计 — 下午
+
+**完全重写 CSS，现代简约风格明亮主题：**
+
+- `public/style.css` — 全新色彩体系、排版、间距、动画；明亮背景 + 靛紫主色调
+- 消息气泡样式优化，头像位置调整（自己消息头像在右）
+- 自己消息文字白色，用户名黄色高亮
+- 登录页渐变光晕、毛玻璃弹窗背景、平滑动画
+
+**涉及文件：** `public/style.css`
+
+---
+
+### 修复：发送图片无法正常显示 — 下午
+
+**问题原因：** 图片消息的 `type` 字段在 socket 实时推送中正确标记为 `"image"`，但保存到数据库时未写入 `type` 列，导致刷新页面后加载历史记录时被当作纯文本显示。
+
+**修改：** 数据库 INSERT 语句增加 `type` 列
+
+- `src/socket/public.js` — `messages` 表 INSERT 增加 `type` 字段
+- `src/socket/private.js` — `private_messages` 表 INSERT 增加 `type` 字段
+
+---
+
 ## 2026-05-07 晚上
 
 ### 重构：头像系统 — 移除上传，改用预设 Emoji 头像 — 18:00

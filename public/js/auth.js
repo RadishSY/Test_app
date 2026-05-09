@@ -57,4 +57,5 @@ function enterChat() {
   socket.connect();
   loadFriendList();
   loadFriendRequests();
+  if (typeof loadUnreadCount === "function") loadUnreadCount();
 }

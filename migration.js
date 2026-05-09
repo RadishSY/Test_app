@@ -32,6 +32,29 @@ async function run() {
     console.log("  type column already exists in private_messages");
   }
 
+  // 检查 notifications 表
+  const [notifTables] = await conn.execute("SHOW TABLES LIKE 'notifications'");
+  if (notifTables.length === 0) {
+    await conn.execute(`CREATE TABLE notifications (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      user_id INT NOT NULL,
+      type VARCHAR(20) NOT NULL DEFAULT 'system',
+      title VARCHAR(200) NOT NULL,
+      content TEXT,
+      related_user_id INT,
+      link VARCHAR(500),
+      is_read TINYINT(1) DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      FOREIGN KEY (related_user_id) REFERENCES users(id)
+    )`);
+    await conn.execute("CREATE INDEX idx_notifications_user_read ON notifications(user_id, is_read)");
+    await conn.execute("CREATE INDEX idx_notifications_created ON notifications(created_at)");
+    console.log("  Created notifications table");
+  } else {
+    console.log("  notifications table already exists");
+  }
+
   // 检查 users 表是否有 avatar 列
   const [cols3] = await conn.execute("SHOW COLUMNS FROM users LIKE 'avatar'");
   if (cols3.length === 0) {
