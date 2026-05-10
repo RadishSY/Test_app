@@ -63,6 +63,7 @@ body {
   background: var(--bg-app);
   color: var(--text-primary);
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -71,6 +72,7 @@ body {
 
 .screen {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -242,6 +244,7 @@ textarea:focus-visible {
 .chat-container {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   max-width: 1280px;
   margin: 0 auto;
@@ -975,6 +978,95 @@ textarea:focus-visible {
 }
 
 /* =============================================
+   FILE ATTACHMENTS
+   ============================================= */
+.file-attachment {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+  min-width: 180px;
+}
+
+.file-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.file-name {
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.message.own .file-name,
+.message.own .file-size {
+  color: #fff;
+}
+
+.message.own .file-size {
+  opacity: 0.7;
+}
+
+.message.other .file-name {
+  color: var(--text-primary);
+}
+
+.message.other .file-size {
+  color: var(--text-muted);
+}
+
+.file-download-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 17px;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.message.own .file-download-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.message.own .file-download-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(1.1);
+}
+
+.message.other .file-download-btn {
+  color: var(--text-secondary);
+  background: var(--bg-hover);
+}
+
+.message.other .file-download-btn:hover {
+  background: var(--bg-active);
+  transform: scale(1.1);
+}
+
+/* =============================================
    SYSTEM MESSAGES & TYPING
    ============================================= */
 .system-msg {
@@ -1537,6 +1629,98 @@ textarea:focus-visible {
 }
 
 /* =============================================
+   IMAGE VIEWER
+   ============================================= */
+.image-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.image-viewer.hidden {
+  display: none;
+}
+
+.viewer-image {
+  max-width: 92vw;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 48px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.image-viewer-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
+  z-index: 1001;
+  animation: fadeIn 0.2s ease;
+}
+
+.viewer-btn {
+  padding: 8px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.viewer-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: scale(1.04);
+}
+
+.viewer-btn:active {
+  transform: scale(0.96);
+}
+
+#viewer-close {
+  margin-right: auto;
+}
+
+/* =============================================
+   IMAGE VIEWER — Mobile
+   ============================================= */
+@media (max-width: 600px) {
+  .viewer-image {
+    max-width: 96vw;
+    max-height: 80vh;
+  }
+
+  .image-viewer-toolbar {
+    padding: 12px 14px;
+  }
+
+  .viewer-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+}
+
+/* =============================================
    ANIMATIONS
    ============================================= */
 @keyframes fadeIn {
@@ -1583,6 +1767,64 @@ textarea:focus-visible {
 
 .sidebar-close-btn {
   display: none;
+}
+
+/* =============================================
+   MOBILE — Touch optimization (all touch devices)
+   ============================================= */
+@media (hover: none) and (pointer: coarse) {
+  .stab-panel li,
+  .friend-item,
+  #search-results li {
+    min-height: 44px;
+    padding: 12px 10px;
+  }
+
+  .tool-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .s-tab {
+    padding: 10px 8px 12px;
+    font-size: 13px;
+  }
+
+  .req-actions button {
+    padding: 6px 16px;
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  #add-friend-btn {
+    padding: 12px 9px;
+    font-size: 13px;
+  }
+
+  .sidebar-user-info {
+    padding: 8px 10px 8px 6px;
+  }
+
+  #logout-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .search-add-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .back-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    min-height: 36px;
+  }
+
+  .notif-bell {
+    width: 40px;
+    height: 40px;
+  }
 }
 
 /* =============================================
@@ -1636,6 +1878,7 @@ textarea:focus-visible {
     z-index: 300;
     transition: left var(--transition-normal);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+    overscroll-behavior: contain;
   }
 
   .sidebar.open {
@@ -1671,6 +1914,11 @@ textarea:focus-visible {
 
   body.sidebar-open {
     overflow: hidden;
+  }
+
+  body.sidebar-open .main {
+    pointer-events: none;
+    user-select: none;
   }
 
   .chat-container {
@@ -1842,5 +2090,141 @@ textarea:focus-visible {
 
   .login-box h1 {
     font-size: 22px;
+  }
+
+  /* 小屏通知面板全屏 */
+  .notif-dropdown {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: auto;
+    max-height: 100%;
+    border-radius: 0;
+    z-index: 350;
+    animation: fadeIn 0.15s ease;
+  }
+
+  .notif-dropdown-body {
+    max-height: none;
+    flex: 1;
+  }
+
+  .file-attachment {
+    min-width: 140px;
+  }
+
+  .file-download-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+
+  .system-msg {
+    font-size: 10px;
+    padding: 4px 10px;
+    max-width: 95%;
+  }
+}
+
+/* =============================================
+   MOBILE — Very small phones (< 400px)
+   ============================================= */
+@media (max-width: 400px) {
+  .chat-header h2 {
+    font-size: 13px;
+  }
+
+  .input-area {
+    padding: 6px 6px;
+    gap: 4px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+
+  .input-area input[type="text"] {
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  .input-area button[type="submit"] {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .tool-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+  }
+
+  .message {
+    max-width: 96%;
+  }
+
+  .messages {
+    padding: 8px 6px;
+  }
+
+  .msg-body {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+
+  .chat-image {
+    max-width: 150px;
+    max-height: 150px;
+  }
+
+  .login-box {
+    padding: 28px 16px 24px;
+  }
+
+  .login-box h1 {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+
+  .auth-form input {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .notif-bell {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+}
+
+/* =============================================
+   LANDSCAPE MODE (mobile)
+   ============================================= */
+@media (max-height: 500px) and (orientation: landscape) {
+  .messages {
+    padding: 8px 12px;
+  }
+
+  .input-area {
+    padding: 6px 8px;
+  }
+
+  .chat-header {
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+
+  .sidebar {
+    width: 260px;
+  }
+
+  .sidebar.open {
+    width: 80%;
+    max-width: 320px;
+  }
+
+  .emoji-picker {
+    max-height: 140px;
+    bottom: 60px !important;
   }
 }

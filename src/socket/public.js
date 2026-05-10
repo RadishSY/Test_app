@@ -20,4 +20,27 @@ module.exports = function (socket, io, db, ctx) {
       time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
     });
   });
+
+  socket.on("file message", async (data) => {
+    const { url, name, size } = data || {};
+    if (!url) return;
+    const trimmedName = (name || "文件").slice(0, 100);
+    const msg = JSON.stringify({ url, name: trimmedName, size: Math.min(size || 0, 1024 * 1024 * 1024) });
+
+    await db.query(
+      "INSERT INTO messages (user_id, username, text, color, type) VALUES (?, ?, ?, ?, ?)",
+      [ctx.userId, ctx.username, msg, ctx.userInfo.color, "file"]
+    );
+
+    io.emit("chat message", {
+      id: ctx.userId,
+      username: ctx.username,
+      nickname: ctx.user.nickname,
+      color: ctx.userInfo.color,
+      avatar: ctx.userInfo.avatar,
+      text: msg,
+      type: "file",
+      time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+    });
+  });
 };

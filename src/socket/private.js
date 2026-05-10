@@ -57,4 +57,50 @@ module.exports = function (socket, io, db, ctx) {
   socket.on("view public chat", () => {
     ctx.state.userViewing.set(ctx.userId, null);
   });
+
+  // ---- 私聊文件 ----
+  socket.on("private file message", async ({ friendId, url, name, size }) => {
+    if (!url || !friendId) return;
+
+    const [friendship] = await db.query(
+      "SELECT id FROM friends WHERE user_id = ? AND friend_id = ? AND status = 'accepted'",
+      [ctx.userId, friendId]
+    );
+    if (friendship.length === 0) {
+      socket.emit("system message", { text: "只能给好友发送文件", type: "error" });
+      return;
+    }
+
+    const trimmedName = (name || "文件").slice(0, 100);
+    const msg = JSON.stringify({ url, name: trimmedName, size: Math.min(size || 0, 1024 * 1024 * 1024) });
+
+    await db.query(
+      "INSERT INTO private_messages (sender_id, receiver_id, text, type) VALUES (?, ?, ?, ?)",
+      [ctx.userId, friendId, msg, "file"]
+    );
+
+    const payload = {
+      id: ctx.userId,
+      nickname: ctx.user.nickname,
+      color: ctx.userInfo.color,
+      avatar: ctx.userInfo.avatar,
+      text: msg,
+      type: "file",
+      time: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    const targetSockets = ctx.state.userSockets.get(friendId);
+    if (targetSockets) {
+      for (const sid of targetSockets) {
+        io.to(sid).emit("private message", { ...payload, fromId: ctx.userId });
+      }
+    }
+    socket.emit("private message", { ...payload, fromId: ctx.userId });
+
+    if (ctx.state.userViewing.get(friendId) !== ctx.userId) {
+      const map = getUnreadMap(friendId);
+      map.set(ctx.userId, (map.get(ctx.userId) || 0) + 1);
+      emitUnreadCounts(io, friendId);
+    }
+  });
 };

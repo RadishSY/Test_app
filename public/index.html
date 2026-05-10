@@ -203,7 +203,9 @@
             <div class="input-tools">
               <button type="button" class="tool-btn emoji-btn" data-target="message-input" title="表情">😊</button>
               <button type="button" class="tool-btn upload-btn" data-target="message-form" title="发送图片">📷</button>
+              <button type="button" class="tool-btn file-btn" data-target="message-form" title="发送文件">📎</button>
               <input type="file" class="file-input" accept="image/*" hidden>
+              <input type="file" class="file-input-file" hidden>
             </div>
             <button type="submit">发送</button>
           </form>
@@ -225,13 +227,24 @@
             <div class="input-tools">
               <button type="button" class="tool-btn emoji-btn" data-target="private-input" title="表情">😊</button>
               <button type="button" class="tool-btn upload-btn" data-target="private-form" title="发送图片">📷</button>
+              <button type="button" class="tool-btn file-btn" data-target="private-form" title="发送文件">📎</button>
               <input type="file" class="file-input" accept="image/*" hidden>
+              <input type="file" class="file-input-file" hidden>
             </div>
             <button type="submit">发送</button>
           </form>
         </div>
       </main>
     </div>
+  </div>
+
+  <!-- ===== 图片查看器 ===== -->
+  <div id="image-viewer" class="image-viewer hidden">
+    <div class="image-viewer-toolbar">
+      <button class="viewer-btn" id="viewer-close" title="返回">&larr; 返回</button>
+      <button class="viewer-btn" id="viewer-download" title="下载">&#x2913; 下载</button>
+    </div>
+    <img id="viewer-image" class="viewer-image" alt="">
   </div>
 
   <!-- ===== Emoji 选择器 ===== -->

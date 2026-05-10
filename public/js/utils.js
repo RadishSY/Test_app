@@ -133,7 +133,9 @@ function createMessageEl(data, isOwn) {
   div.className = `message ${isOwn ? "own" : "other"}`;
   const time = formatTime(data.time || data.created_at);
   const content = data.type === "image"
-    ? `<div class="msg-text"><img src="${esc(data.text)}" class="chat-image" alt="图片" loading="lazy" onclick="window.open(this.src)"></div>`
+    ? `<div class="msg-text"><img src="${esc(data.text)}" class="chat-image" alt="图片" loading="lazy" onclick="openImageViewer(this.src)"></div>`
+    : data.type === "file"
+    ? `<div class="msg-text">${renderFileMessage(data.text)}</div>`
     : `<div class="msg-text">${esc(data.text)}</div>`;
   const avatarHtml = getAvatarHtml(data, 28);
   const otherAvatar = !isOwn && data.id
@@ -165,3 +167,82 @@ function appendPrivateMessage(data) {
   privateMessages.appendChild(div);
   scrollBottom(privateMessages);
 }
+
+// ========== 文件消息渲染 ==========
+function formatFileSize(bytes) {
+  if (!bytes || bytes <= 0) return "";
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+  if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB";
+}
+
+function getFileIcon(name) {
+  const ext = name.split(".").pop().toLowerCase();
+  const map = {
+    pdf: "📄", doc: "📝", docx: "📝", xls: "📊", xlsx: "📊", ppt: "📽️", pptx: "📽️",
+    zip: "📦", rar: "📦", "7z": "📦", gz: "📦", tar: "📦",
+    mp3: "🎵", wav: "🎵", flac: "🎵", aac: "🎵", ogg: "🎵",
+    mp4: "🎬", avi: "🎬", mov: "🎬", mkv: "🎬", webm: "🎬",
+    exe: "⚙️", dmg: "⚙️", apk: "⚙️", msi: "⚙️",
+    txt: "📃", json: "📃", csv: "📃", xml: "📃", yml: "📃", yaml: "📃",
+    js: "🟨", ts: "🟦", py: "🐍", java: "☕", go: "🔵", rs: "🦀",
+    html: "🌐", css: "🎨", scss: "🎨", sql: "🗄️",
+    psd: "🎨", ai: "🎨", svg: "🖼️", ico: "🖼️",
+  };
+  return map[ext] || "📎";
+}
+
+function renderFileMessage(text) {
+  let info;
+  try { info = JSON.parse(text); } catch (e) { return esc(text); }
+  if (!info || !info.url) return esc(text);
+  const icon = getFileIcon(info.name || "");
+  const fileName = info.name || "文件";
+  const fileSize = formatFileSize(info.size);
+  return `<div class="file-attachment">
+    <span class="file-icon">${icon}</span>
+    <div class="file-info">
+      <span class="file-name">${esc(fileName)}</span>
+      ${fileSize ? `<span class="file-size">${esc(fileSize)}</span>` : ""}
+    </div>
+    <a href="${esc(info.url)}" class="file-download-btn" download="${esc(fileName)}" title="下载">⬇</a>
+  </div>`;
+}
+
+// ========== 图片查看器 ==========
+function openImageViewer(src) {
+  const viewer = document.getElementById("image-viewer");
+  const img = document.getElementById("viewer-image");
+  img.src = src;
+  viewer.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeImageViewer() {
+  const viewer = document.getElementById("image-viewer");
+  viewer.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("viewer-close").addEventListener("click", closeImageViewer);
+
+  document.getElementById("viewer-download").addEventListener("click", () => {
+    const img = document.getElementById("viewer-image");
+    const a = document.createElement("a");
+    a.href = img.src;
+    a.download = img.src.split("/").pop();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  document.getElementById("image-viewer").addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) closeImageViewer();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeImageViewer();
+  });
+});

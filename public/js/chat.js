@@ -136,3 +136,60 @@ document.addEventListener("change", async e => {
     submitBtn.textContent = originalText;
   }
 });
+
+// ========== 文件上传 ==========
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".file-btn");
+  if (btn) {
+    e.preventDefault();
+    const form = document.getElementById(btn.dataset.target);
+    const fileInput = form.querySelector(".file-input-file");
+    fileInput.click();
+  }
+});
+
+document.addEventListener("change", async e => {
+  const fileInput = e.target.closest(".file-input-file");
+  if (!fileInput) return;
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const form = fileInput.closest(".input-area");
+  const submitBtn = form.querySelector("button[type='submit']");
+  const originalText = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = "上传中...";
+
+  try {
+    const fd = new FormData();
+    fd.append("file", file);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json();
+    if (data.ok) {
+      if (data.isImage) {
+        // 图片走原有流程
+        const isPrivate = form.id === "private-form";
+        if (isPrivate && currentPrivateFriend) {
+          socket.emit("private message", { friendId: currentPrivateFriend.id, text: data.url });
+        } else {
+          socket.emit("chat message", data.url);
+        }
+      } else {
+        const isPrivate = form.id === "private-form";
+        if (isPrivate && currentPrivateFriend) {
+          socket.emit("private file message", { friendId: currentPrivateFriend.id, url: data.url, name: data.originalName, size: data.size });
+        } else {
+          socket.emit("file message", { url: data.url, name: data.originalName, size: data.size });
+        }
+      }
+    } else {
+      alert(data.msg || "上传失败");
+    }
+  } catch (err) {
+    alert("上传失败: " + err.message);
+  } finally {
+    fileInput.value = "";
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+});

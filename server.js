@@ -26,13 +26,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowed = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) cb(null, true);
-    else cb(new Error("不支持的文件格式，仅支持 jpg/png/gif/webp"), false);
-  },
+  limits: { fileSize: 1024 * 1024 * 1024 },
 });
 
 // ========== Express ==========
@@ -93,12 +87,18 @@ uploadRouter.post("/", (req, res) => {
   upload.single("file")(req, res, (err) => {
     if (err) {
       if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
-        return res.json({ ok: false, msg: "文件大小不能超过 5MB" });
+        return res.json({ ok: false, msg: "文件大小不能超过 1GB" });
       }
       return res.json({ ok: false, msg: err.message || "上传失败" });
     }
     if (!req.file) return res.json({ ok: false, msg: "请选择文件" });
-    res.json({ ok: true, url: "/uploads/" + req.file.filename });
+    res.json({
+      ok: true,
+      url: "/uploads/" + req.file.filename,
+      originalName: req.file.originalname,
+      size: req.file.size,
+      isImage: req.file.mimetype.startsWith("image/"),
+    });
   });
 });
 app.use("/api/upload", uploadRouter);
