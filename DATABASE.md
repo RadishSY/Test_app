@@ -143,6 +143,86 @@ CREATE TABLE notifications (
 
 ---
 
+---
+
+## `groups` — 群组表
+
+```sql
+CREATE TABLE groups (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  owner_id INT NOT NULL,
+  avatar VARCHAR(500) DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| id | INT | 主键，自增 |
+| name | VARCHAR(100) | 群名称 |
+| description | TEXT | 群简介 |
+| owner_id | INT | 群主用户 ID，关联 users.id |
+| avatar | VARCHAR(500) | 群头像 |
+| created_at | DATETIME | 创建时间 |
+
+---
+
+## `group_members` — 群成员表
+
+```sql
+CREATE TABLE group_members (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  group_id INT NOT NULL,
+  user_id INT NOT NULL,
+  role VARCHAR(10) DEFAULT 'member',
+  joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  UNIQUE KEY uk_group_user (group_id, user_id)
+);
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| id | INT | 主键，自增 |
+| group_id | INT | 群 ID，关联 groups.id |
+| user_id | INT | 用户 ID，关联 users.id |
+| role | VARCHAR(10) | 角色：'owner' / 'admin' / 'member' |
+| joined_at | DATETIME | 加入时间 |
+
+**唯一约束**：(group_id, user_id) 确保同一用户不会重复加入
+
+---
+
+## `group_messages` — 群聊消息表
+
+```sql
+CREATE TABLE group_messages (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  group_id INT NOT NULL,
+  user_id INT NOT NULL,
+  text TEXT NOT NULL,
+  type VARCHAR(10) DEFAULT 'text',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| id | INT | 主键，自增 |
+| group_id | INT | 群 ID，关联 groups.id |
+| user_id | INT | 发送者用户 ID |
+| text | TEXT | 消息内容/图片 URL/文件 JSON |
+| type | VARCHAR(10) | 类型：'text' / 'image' / 'file' |
+| created_at | DATETIME | 发送时间 |
+
+---
+
 ## 索引建议
 
 ```sql
@@ -160,4 +240,10 @@ CREATE INDEX idx_private_messages_receiver ON private_messages(receiver_id);
 CREATE INDEX idx_friends_user_id ON friends(user_id);
 CREATE INDEX idx_friends_friend_id ON friends(friend_id);
 CREATE INDEX idx_friends_status ON friends(status);
+
+-- 群聊查询加速
+CREATE INDEX idx_gm_group ON group_members(group_id);
+CREATE INDEX idx_gm_user ON group_members(user_id);
+CREATE INDEX idx_gmsg_group ON group_messages(group_id);
+CREATE INDEX idx_gmsg_created ON group_messages(created_at);
 ```

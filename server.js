@@ -107,6 +107,10 @@ app.use("/api/upload", uploadRouter);
 const notifRouter = express.Router();
 app.use("/api/notifications", requireAuth, require("./src/routes/notifications")(notifRouter, db));
 
+// ========== 群聊 ==========
+const groupsRouter = express.Router();
+app.use("/api/groups", requireAuth, require("./src/routes/groups")(groupsRouter, db));
+
 // ========== Socket.IO ==========
 require("./src/socket")(io, db);
 

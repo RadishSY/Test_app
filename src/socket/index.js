@@ -2,6 +2,8 @@ const state = require("./state");
 const setupPublicChat = require("./public");
 const setupPrivateChat = require("./private");
 const setupNotifs = require("./notifs");
+const setupGroupChat = require("./group");
+const setupVoiceCall = require("./voice");
 
 module.exports = function (io, db) {
   io.on("connection", async (socket) => {
@@ -50,6 +52,8 @@ module.exports = function (io, db) {
     setupPublicChat(socket, io, db, ctx);
     setupPrivateChat(socket, io, db, ctx);
     setupNotifs(socket, io, db, ctx);
+    setupGroupChat(socket, io, db, ctx);
+    setupVoiceCall(socket, io, db, ctx);
 
     // ---- 断开连接 ----
     socket.on("disconnect", () => {
@@ -60,6 +64,7 @@ module.exports = function (io, db) {
         if (sockets.size === 0) {
           state.userSockets.delete(userId);
           state.userViewing.delete(userId);
+          state.groupViewing.delete(userId);
         }
       }
 

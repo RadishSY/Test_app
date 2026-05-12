@@ -55,6 +55,61 @@ async function run() {
     console.log("  notifications table already exists");
   }
 
+  // === 群聊相关表 ===
+  const [groupTables] = await conn.execute("SHOW TABLES LIKE 'groups'");
+  if (groupTables.length === 0) {
+    await conn.execute(`CREATE TABLE \`groups\` (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      owner_id INT NOT NULL,
+      avatar VARCHAR(500) DEFAULT '',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (owner_id) REFERENCES users(id)
+    )`);
+    console.log("  Created groups table");
+  } else {
+    console.log("  groups table already exists");
+  }
+
+  const [gmTables] = await conn.execute("SHOW TABLES LIKE 'group_members'");
+  if (gmTables.length === 0) {
+    await conn.execute(`CREATE TABLE group_members (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      group_id INT NOT NULL,
+      user_id INT NOT NULL,
+      role VARCHAR(10) DEFAULT 'member',
+      joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (group_id) REFERENCES \`groups\`(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id),
+      UNIQUE KEY uk_group_user (group_id, user_id)
+    )`);
+    await conn.execute("CREATE INDEX idx_gm_group ON group_members(group_id)");
+    await conn.execute("CREATE INDEX idx_gm_user ON group_members(user_id)");
+    console.log("  Created group_members table");
+  } else {
+    console.log("  group_members table already exists");
+  }
+
+  const [gmsgTables] = await conn.execute("SHOW TABLES LIKE 'group_messages'");
+  if (gmsgTables.length === 0) {
+    await conn.execute(`CREATE TABLE group_messages (
+      id INT PRIMARY KEY AUTO_INCREMENT,
+      group_id INT NOT NULL,
+      user_id INT NOT NULL,
+      text TEXT NOT NULL,
+      type VARCHAR(10) DEFAULT 'text',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (group_id) REFERENCES \`groups\`(id) ON DELETE CASCADE,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    )`);
+    await conn.execute("CREATE INDEX idx_gmsg_group ON group_messages(group_id)");
+    await conn.execute("CREATE INDEX idx_gmsg_created ON group_messages(created_at)");
+    console.log("  Created group_messages table");
+  } else {
+    console.log("  group_messages table already exists");
+  }
+
   // 检查 users 表是否有 avatar 列
   const [cols3] = await conn.execute("SHOW COLUMNS FROM users LIKE 'avatar'");
   if (cols3.length === 0) {

@@ -120,8 +120,11 @@ document.addEventListener("change", async e => {
     const data = await res.json();
     if (data.ok) {
       const isPrivate = form.id === "private-form";
+      const isGroup = form.id === "group-form";
       if (isPrivate && currentPrivateFriend) {
         socket.emit("private message", { friendId: currentPrivateFriend.id, text: data.url });
+      } else if (isGroup && currentGroup) {
+        socket.emit("group message", { groupId: currentGroup.id, text: data.url });
       } else {
         socket.emit("chat message", data.url);
       }
@@ -166,18 +169,22 @@ document.addEventListener("change", async e => {
     const res = await fetch("/api/upload", { method: "POST", body: fd });
     const data = await res.json();
     if (data.ok) {
+      const isPrivate = form.id === "private-form";
+      const isGroup = form.id === "group-form";
+
       if (data.isImage) {
-        // 图片走原有流程
-        const isPrivate = form.id === "private-form";
         if (isPrivate && currentPrivateFriend) {
           socket.emit("private message", { friendId: currentPrivateFriend.id, text: data.url });
+        } else if (isGroup && currentGroup) {
+          socket.emit("group message", { groupId: currentGroup.id, text: data.url });
         } else {
           socket.emit("chat message", data.url);
         }
       } else {
-        const isPrivate = form.id === "private-form";
         if (isPrivate && currentPrivateFriend) {
           socket.emit("private file message", { friendId: currentPrivateFriend.id, url: data.url, name: data.originalName, size: data.size });
+        } else if (isGroup && currentGroup) {
+          socket.emit("group file message", { groupId: currentGroup.id, url: data.url, name: data.originalName, size: data.size });
         } else {
           socket.emit("file message", { url: data.url, name: data.originalName, size: data.size });
         }

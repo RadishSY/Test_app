@@ -5,12 +5,15 @@ sTabs.forEach(tab => {
     tab.classList.add("active");
     onlinePanel.classList.toggle("hidden", tab.dataset.stab !== "online");
     friendsPanel.classList.toggle("hidden", tab.dataset.stab !== "friends");
+    groupsPanel.classList.toggle("hidden", tab.dataset.stab !== "groups");
+    if (tab.dataset.stab === "groups") loadGroupList();
   });
 });
 
 // ========== 添加好友弹窗 ==========
+const addFriendClose = document.getElementById("add-friend-close");
 addFriendBtn.addEventListener("click", () => addFriendModal.classList.remove("hidden"));
-modalClose.addEventListener("click", () => { addFriendModal.classList.add("hidden"); searchResults.innerHTML = ""; searchInput.value = ""; });
+addFriendClose.addEventListener("click", () => { addFriendModal.classList.add("hidden"); searchResults.innerHTML = ""; searchInput.value = ""; });
 addFriendModal.addEventListener("click", e => { if (e.target === addFriendModal) { addFriendModal.classList.add("hidden"); searchResults.innerHTML = ""; searchInput.value = ""; } });
 
 let searchTimer = null;
@@ -62,15 +65,41 @@ async function loadFriendList() {
     return `<li data-id="${f.id}" data-nick="${esc(f.nickname)}" data-color="${f.color}" data-avatar="${esc(f.avatar || "")}" class="friend-item">
       ${avatarHtml} <span class="friend-name">${esc(f.nickname)}</span>
       <span class="unread-badge" data-friend-id="${f.id}">${unreadCounts[f.id] || ""}</span>
+      <button class="friend-remove-btn" data-id="${f.id}" title="删除好友">&times;</button>
     </li>`;
   }).join("");
   friendListEl.querySelectorAll(".friend-item").forEach(el => {
-    el.addEventListener("click", () => openPrivateChat({
-      id: Number(el.dataset.id),
-      nickname: el.dataset.nick,
-      color: el.dataset.color,
-      avatar: el.dataset.avatar || "",
-    }));
+    el.addEventListener("click", (e) => {
+      if (e.target.closest(".friend-remove-btn")) return;
+      openPrivateChat({
+        id: Number(el.dataset.id),
+        nickname: el.dataset.nick,
+        color: el.dataset.color,
+        avatar: el.dataset.avatar || "",
+      });
+    });
+  });
+  friendListEl.querySelectorAll(".friend-remove-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const friendId = Number(btn.dataset.id);
+      if (!confirm("确定要删除这个好友吗？")) return;
+      try {
+        const res = await fetch("/api/friends/remove", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ friendId }),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          loadFriendList();
+        } else {
+          alert(data.msg || "删除失败");
+        }
+      } catch (err) {
+        alert("删除失败: " + err.message);
+      }
+    });
   });
   updateUnreadBadges();
 }
@@ -140,6 +169,10 @@ backToPublic.addEventListener("click", () => {
   publicChat.classList.remove("hidden");
   privateChat.classList.add("hidden");
   socket.emit("view public chat");
+  if (currentGroup) {
+    socket.emit("leave group", { groupId: currentGroup.id });
+    currentGroup = null;
+  }
 });
 
 // ========== 用户资料弹窗（点击公共聊天头像）==========

@@ -139,6 +139,7 @@ function onBellClick(e) {
 
 notifBell.addEventListener("click", onBellClick);
 if (notifBellPrivate) notifBellPrivate.addEventListener("click", onBellClick);
+if (notifBellGroup) notifBellGroup.addEventListener("click", onBellClick);
 
 notifMarkRead.addEventListener("click", () => markRead(null));
 

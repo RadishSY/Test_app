@@ -1,8 +1,11 @@
 // 模块级共享状态，跨所有 Socket 连接
 const onlineUsers = new Map(); // socketId -> { id, username, nickname, color }
 const userSockets = new Map(); // userId -> Set<socketId>
-const unreadCounts = new Map(); // userId -> Map<friendId, count>
+const unreadCounts = new Map(); // userId -> Map<friendId | "g:groupId", count>
 const userViewing = new Map(); // userId -> friendId | null
+const groupViewing = new Map(); // userId -> groupId | null
+const activeCalls = new Map();
+// groupId -> { startedBy: userId, startedAt: Date, participants: Map<userId, { socketId, nickname, color, avatar, muted }> }
 
 function getUnreadMap(userId) {
   if (!unreadCounts.has(userId)) unreadCounts.set(userId, new Map());
@@ -30,4 +33,4 @@ function getOnlineList() {
   }));
 }
 
-module.exports = { onlineUsers, userSockets, unreadCounts, userViewing, getUnreadMap, emitUnreadCounts, getOnlineList };
+module.exports = { onlineUsers, userSockets, unreadCounts, userViewing, groupViewing, activeCalls, getUnreadMap, emitUnreadCounts, getOnlineList };

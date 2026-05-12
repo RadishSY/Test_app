@@ -55,6 +55,7 @@
         <div class="sidebar-tabs">
           <button class="s-tab active" data-stab="online">在线 <span id="online-count"></span></button>
           <button class="s-tab" data-stab="friends">好友</button>
+          <button class="s-tab" data-stab="groups">群聊</button>
         </div>
 
         <!-- 在线用户列表 -->
@@ -73,10 +74,31 @@
           <p id="no-friends" class="empty-hint">还没有好友</p>
         </div>
 
+        <!-- 群聊面板 -->
+        <div id="groups-panel" class="stab-panel hidden">
+          <button id="create-group-btn" class="btn-small">＋ 创建群聊</button>
+          <ul id="group-list"></ul>
+          <p id="no-groups" class="empty-hint">还没有群聊</p>
+        </div>
+
+        <!-- 创建群聊弹窗 -->
+        <div id="create-group-modal" class="modal hidden">
+          <div class="modal-content">
+            <span class="modal-close" id="create-group-close">&times;</span>
+            <h3>创建群聊</h3>
+            <input type="text" id="group-name-input" placeholder="群名称" maxlength="100">
+            <textarea id="group-desc-input" placeholder="群简介（选填）" maxlength="200" rows="2"></textarea>
+            <h4>选择好友（至少 2 位）</h4>
+            <div id="group-member-select" class="member-select"></div>
+            <p id="group-create-msg" class="auth-msg"></p>
+            <button id="group-create-submit" class="btn-small" style="width:100%;margin-top:8px">创建群聊</button>
+          </div>
+        </div>
+
         <!-- 添加好友弹窗 -->
         <div id="add-friend-modal" class="modal hidden">
           <div class="modal-content">
-            <span class="modal-close">&times;</span>
+            <span class="modal-close" id="add-friend-close">&times;</span>
             <h3>添加好友</h3>
             <input type="text" id="search-user-input" placeholder="搜索用户名或昵称...">
             <ul id="search-results"></ul>
@@ -234,7 +256,50 @@
             <button type="submit">发送</button>
           </form>
         </div>
+
+        <!-- 群聊 -->
+        <div id="group-chat" class="hidden">
+          <header class="chat-header group-header">
+            <button id="back-from-group" class="back-btn">&larr; 返回</button>
+            <div class="group-header-info">
+              <h2 id="group-chat-name"></h2>
+              <span id="group-chat-member-count" class="group-member-count"></span>
+            </div>
+            <div class="group-header-actions">
+              <button id="group-call-btn" class="header-btn" title="语音通话">📞</button>
+              <button id="notif-bell-group" class="notif-bell" aria-label="通知">🔔</button>
+            </div>
+          </header>
+          <div id="group-messages" class="messages"></div>
+          <div class="typing-indicator" id="group-typing"></div>
+          <form id="group-form" class="input-area">
+            <input type="text" id="group-input" placeholder="输入群聊消息..." autocomplete="off">
+            <div class="input-tools">
+              <button type="button" class="tool-btn emoji-btn" data-target="group-input" title="表情">😊</button>
+              <button type="button" class="tool-btn upload-btn" data-target="group-form" title="发送图片">📷</button>
+              <button type="button" class="tool-btn file-btn" data-target="group-form" title="发送文件">📎</button>
+              <input type="file" class="file-input" accept="image/*" hidden>
+              <input type="file" class="file-input-file" hidden>
+            </div>
+            <button type="submit">发送</button>
+          </form>
+        </div>
       </main>
+    </div>
+  </div>
+
+  <!-- ===== 语音通话面板 ===== -->
+  <div id="voice-call-panel" class="voice-call-panel hidden">
+    <div class="voice-call-container">
+      <div class="voice-call-header">
+        <span class="voice-call-status">🔵 通话中</span>
+        <span id="voice-call-timer" class="voice-call-timer">00:00</span>
+      </div>
+      <div class="voice-call-participants" id="voice-call-participants"></div>
+      <div class="voice-call-controls">
+        <button id="voice-mute-btn" class="voice-control-btn" title="静音">🎤</button>
+        <button id="voice-hangup-btn" class="voice-control-btn voice-hangup" title="挂断">☎</button>
+      </div>
     </div>
   </div>
 
@@ -255,6 +320,8 @@
   <script src="/js/utils.js"></script>
   <script src="/js/profile.js"></script>
   <script src="/js/friends.js"></script>
+  <script src="/js/groups.js"></script>
+  <script src="/js/voice.js"></script>
   <script src="/js/chat.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/notifications.js"></script>

@@ -61,6 +61,24 @@ socket.on("unread counts", data => {
       b.classList.remove("visible");
     }
   });
+  // 更新群列表未读
+  document.querySelectorAll(".group-item").forEach(el => {
+    const gid = el.dataset.id;
+    const count = unreadCounts[`g:${gid}`] || 0;
+    let badge = el.querySelector(".unread-badge");
+    if (count > 0) {
+      if (!badge) {
+        badge = document.createElement("span");
+        badge.className = "unread-badge visible";
+        el.appendChild(badge);
+      }
+      badge.textContent = count > 99 ? "99+" : count;
+      badge.classList.add("visible");
+    } else if (badge) {
+      badge.textContent = "";
+      badge.classList.remove("visible");
+    }
+  });
 });
 
 socket.on("private typing", data => {
@@ -73,6 +91,23 @@ socket.on("friend request notification", () => loadFriendRequests());
 
 socket.on("friend request response", data => {
   if (data.accepted) loadFriendList();
+});
+
+// ========== 群聊 Socket 事件 ==========
+socket.on("group message", data => {
+  if (isGroupMode && currentGroup && data.groupId === currentGroup.id) {
+    appendGroupMessage(data);
+  } else if (data.groupId) {
+    if (!unreadCounts[`g:${data.groupId}`]) unreadCounts[`g:${data.groupId}`] = 0;
+    unreadCounts[`g:${data.groupId}`]++;
+    updateUnreadBadges();
+  }
+});
+
+socket.on("group typing", data => {
+  if (isGroupMode && currentGroup && data.groupId === currentGroup.id) {
+    groupTyping.textContent = data.isTyping ? `${esc(data.nickname)} 正在输入...` : "";
+  }
 });
 
 // ========== 页面加载时检查登录态 ==========

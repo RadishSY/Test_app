@@ -473,6 +473,27 @@ textarea:focus-visible {
   background: var(--accent-soft);
 }
 
+#create-group-btn {
+  width: 100%;
+  padding: 9px;
+  margin-bottom: 10px;
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+#create-group-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 #friend-requests {
   margin-bottom: 10px;
   padding: 10px 12px;
@@ -549,6 +570,38 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-right: 32px;
+  position: relative;
+}
+
+.friend-remove-btn {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all .15s;
+}
+
+.friend-item:hover .friend-remove-btn {
+  display: flex;
+}
+
+.friend-remove-btn:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .friend-name {
@@ -566,10 +619,12 @@ textarea:focus-visible {
   flex-direction: column;
   background: var(--bg-app);
   min-width: 0;
+  min-height: 0;
 }
 
 #public-chat,
-#private-chat {
+#private-chat,
+#group-chat {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -2226,5 +2281,259 @@ textarea:focus-visible {
   .emoji-picker {
     max-height: 140px;
     bottom: 60px !important;
+  }
+}
+
+/* =============================================
+   GROUP CHAT
+   ============================================= */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.group-header-info {
+  flex: 1;
+  min-width: 0;
+}
+.group-header-info h2 {
+  margin: 0;
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.group-member-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.group-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.header-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background .15s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-btn:hover {
+  background: var(--bg-hover);
+}
+
+/* 群聊面板列表 */
+#group-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+}
+.group-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background .15s;
+  min-height: 44px;
+}
+.group-item:hover {
+  background: var(--bg-hover);
+}
+.group-item-name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.group-item-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* 创建群聊弹窗 */
+#group-name-input,
+#group-desc-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  background: var(--bg-input);
+}
+#group-desc-input {
+  resize: vertical;
+  font-family: inherit;
+}
+.member-select {
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 8px 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 4px;
+}
+.member-select-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .15s;
+  min-height: 44px;
+}
+.member-select-item:hover {
+  background: var(--bg-hover);
+}
+.member-select-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   VOICE CALL PANEL
+   ============================================= */
+.voice-call-panel {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: var(--bg-surface);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+  padding: 16px 20px;
+  min-width: 280px;
+  max-width: 360px;
+  animation: slideUp .25s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.voice-call-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+.voice-call-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.voice-call-timer {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.voice-call-participants {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.call-participant-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 56px;
+}
+.call-participant-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  border: 2px solid transparent;
+  transition: border-color .3s;
+}
+.call-participant-avatar.speaking {
+  border-color: var(--success);
+  box-shadow: 0 0 12px rgba(34,197,94,.35);
+}
+.call-participant-name {
+  font-size: 11px;
+  color: var(--text-secondary);
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+.call-participant-status {
+  font-size: 14px;
+  line-height: 1;
+}
+.call-participant-status.muted {
+  opacity: .5;
+}
+.voice-call-controls {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+.voice-control-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  background: var(--bg-elevated);
+}
+.voice-control-btn:hover {
+  background: var(--bg-hover);
+}
+.voice-control-btn.muted {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.voice-hangup {
+  background: #ef4444 !important;
+  color: #fff !important;
+  transform: rotate(135deg);
+  font-size: 24px;
+}
+.voice-hangup:hover {
+  background: #dc2626 !important;
+}
+
+@media (max-width: 400px) {
+  .voice-call-panel {
+    min-width: auto;
+    left: 8px;
+    right: 8px;
+    transform: none;
+    bottom: 72px;
   }
 }

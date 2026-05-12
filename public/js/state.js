@@ -9,6 +9,18 @@ let typingTimer = null;
 let isTyping = false;
 let unreadCounts = {};
 
+// 群聊状态
+let currentGroup = null;
+let isGroupMode = false;
+let groupTypingTimer = null;
+let isGroupTyping = false;
+
+// 通话状态
+let inCall = false;
+let callGroupId = null;
+let isMuted = false;
+let callTimerInterval = null;
+
 // ========== DOM ==========
 const loginScreen = document.getElementById("login-screen");
 const chatScreen = document.getElementById("chat-screen");
@@ -31,7 +43,6 @@ const logoutBtn = document.getElementById("logout-btn");
 
 const addFriendBtn = document.getElementById("add-friend-btn");
 const addFriendModal = document.getElementById("add-friend-modal");
-const modalClose = document.querySelector(".modal-close");
 const searchInput = document.getElementById("search-user-input");
 const searchResults = document.getElementById("search-results");
 const searchEmpty = document.getElementById("search-empty");
@@ -113,3 +124,34 @@ sidebarToggle?.addEventListener("click", () => {
 });
 sidebarOverlay?.addEventListener("click", () => toggleSidebar(false));
 document.getElementById("sidebar-close")?.addEventListener("click", () => toggleSidebar(false));
+
+// ========== 群聊 DOM ==========
+const groupsPanel = document.getElementById("groups-panel");
+const groupListEl = document.getElementById("group-list");
+const noGroups = document.getElementById("no-groups");
+const createGroupBtn = document.getElementById("create-group-btn");
+const createGroupModal = document.getElementById("create-group-modal");
+const createGroupClose = document.getElementById("create-group-close");
+const groupNameInput = document.getElementById("group-name-input");
+const groupDescInput = document.getElementById("group-desc-input");
+const groupMemberSelect = document.getElementById("group-member-select");
+const groupCreateMsg = document.getElementById("group-create-msg");
+const groupCreateSubmit = document.getElementById("group-create-submit");
+
+const groupChat = document.getElementById("group-chat");
+const groupMessages = document.getElementById("group-messages");
+const groupForm = document.getElementById("group-form");
+const groupInput = document.getElementById("group-input");
+const groupTyping = document.getElementById("group-typing");
+const groupChatName = document.getElementById("group-chat-name");
+const groupChatMemberCount = document.getElementById("group-chat-member-count");
+const backFromGroup = document.getElementById("back-from-group");
+
+// ========== 通话 DOM ==========
+const voiceCallPanel = document.getElementById("voice-call-panel");
+const voiceCallParticipants = document.getElementById("voice-call-participants");
+const voiceCallTimer = document.getElementById("voice-call-timer");
+const voiceMuteBtn = document.getElementById("voice-mute-btn");
+const voiceHangupBtn = document.getElementById("voice-hangup-btn");
+const groupCallBtn = document.getElementById("group-call-btn");
+const notifBellGroup = document.getElementById("notif-bell-group");
